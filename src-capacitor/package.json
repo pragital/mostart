@@ -1,7 +1,7 @@
 {
   "name": "mostart",
   "version": "0.0.1",
-  "description": "Remote electric motor starter by Shinwell-tronics.",
+  "description": "Control remote devices through a friendly interface and SMS.",
   "author": "Pragital <contact@pragital.com>",
   "private": true,
   "dependencies": {

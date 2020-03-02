@@ -2,12 +2,12 @@
   <q-page class="flex">
     <div class="q-pa-lg q-gutter-md">
       <div class="row full-height">
-        <div class="col-12 ">
+        <div class="col-12">
           <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">
-            Welcome to Mostart, {{ userName }}
+            Welcome, {{ userName }}
           </div>
           <div class="title text-weight-bold text-h5 mt-3 mb-5">
-            Start or stop motor.
+            Device Remote Control
           </div>
         </div>
 
@@ -15,11 +15,13 @@
           <q-btn
             color="primary"
             size="lg"
-            label="Add Motor"
+            label="Add Device"
             @click="createRecord"
             icon="add"
           >
-            <template v-slot:loading> <q-spinner-radio /> </template>
+            <template v-slot:loading>
+              <q-spinner-radio />
+            </template>
           </q-btn>
         </div>
 
@@ -33,9 +35,11 @@
             @click="createRecord"
             icon="add"
             class="q-mb-md"
-            label="Add Motor"
+            label="Add Device"
           >
-            <template v-slot:loading> <q-spinner-radio /> </template>
+            <template v-slot:loading>
+              <q-spinner-radio />
+            </template>
           </q-btn>
         </div>
 
@@ -47,9 +51,8 @@
 
         <div class="col-12 overline text-weight-bold block text-grey-5 mt-3">
           <p class="infoText">
-            Turn your motor off or on by pushing these buttons. Add a motor by
-            clicking on the 'Add Motor' button if you are not seeing anything
-            here.
+            Control your device by pushing on/off buttons. Add a device by
+            clicking on the 'Add Device' button.
           </p>
         </div>
       </div>
@@ -70,8 +73,11 @@ export default {
     };
   },
   computed: {
-    ...get("user", ["userName"]),
-    ...sync("motor", ["motors", "activeMotor"])
+    ...sync("setting", ["settings"]),
+    ...sync("motor", ["motors", "activeMotor", "defaultDevice"]),
+    userName() {
+      return this.settings["name"] ? this.settings["name"] : "User";
+    }
   },
   components: {
     MotorCard: () => import("../components/MotorCard"),
@@ -79,15 +85,16 @@ export default {
   },
   methods: {
     createRecord() {
-      this.activeMotor = {
-        name: "",
-        phone: "",
-        location: "",
-        serial_num: "",
-        status: "off",
-        isChecking: false,
-        new: "y"
-      };
+      this.activeMotor = { ...this.defaultDevice };
+      this.$set(this.activeMotor, "new", "y");
+      this.$set(this.activeMotor, "msg_req_on", this.settings["msg_req_on"]);
+      this.$set(this.activeMotor, "msg_req_off", this.settings["msg_req_off"]);
+      this.$set(
+        this.activeMotor,
+        "msg_req_status",
+        this.settings["msg_req_status"]
+      );
+      this.$set(this.activeMotor, "msg_resp_ok", this.settings["msg_resp_ok"]);
       this.motorDialog = true;
     }
   }

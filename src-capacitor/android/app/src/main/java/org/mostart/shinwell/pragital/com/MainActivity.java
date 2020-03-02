@@ -1,4 +1,4 @@
-package com.pragital.shinwelltronics.mostart.app;
+package com.pragital.mostart.app;
 
 import android.os.Bundle;
 

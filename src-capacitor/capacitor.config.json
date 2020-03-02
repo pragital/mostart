@@ -1,5 +1,5 @@
 {
-  "appId": "com.pragital.shinwelltronics.mostart.app",
+  "appId": "com.pragital.mostart.app",
   "appName": "Mostart Remote Motor Starter",
   "bundledWebRuntime": false,
   "npmClient": "npm",

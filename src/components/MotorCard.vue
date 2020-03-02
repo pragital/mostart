@@ -1,110 +1,114 @@
 <template>
   <q-card class="q-mb-lg">
     <div class="row">
-      <q-card class="col col-12 col-sm-8">
-        <q-card-section class="q-px-md" v-if="motor">
-          <div class="row  justify-around">
+      <q-card class="col col-12 col-sm-8" v-if="motor">
+        <q-card-actions class="dense justify-end q-px-md q-mb-md bg-grey-2">
+          <q-btn flat color="grey-6" icon="edit" @click="editRecord(motor)">
+            <template v-slot:loading>
+              <q-spinner-radio />
+            </template>
+            <q-tooltip content-class="bg-blue-5"
+              >Edit device details incl. phone number, name or serial
+              number.</q-tooltip
+            >
+          </q-btn>
+          <!-- <q-btn
+            flat
+            color="grey-6"
+            icon="view_headline"
+            @click="showHistory(motor)"
+          >
+            <template v-slot:loading>
+              <q-spinner-radio />
+            </template>
+            <q-tooltip content-class="bg-blue-5"
+              >Check request history for the device.</q-tooltip
+            >
+          </q-btn> -->
+
+          <q-btn
+            flat
+            color="grey-6"
+            icon="refresh"
+            @click="refreshStatus(motor)"
+          >
+            <template v-slot:loading>
+              <q-spinner-radio />
+            </template>
+            <q-tooltip content-class="bg-blue-5"
+              >Refresh status by sending another SMS to device.</q-tooltip
+            >
+          </q-btn>
+        </q-card-actions>
+        <q-card-section class="q-px-md">
+          <div class="row justify-around">
             <q-input
-              class="col col-12 "
+              class="col col-6"
               :value="motor['name']"
               label="Name"
               readonly
             />
             <q-input
-              class="col col-12 col-md-6"
-              :value="motor['phone']"
-              label="Motor Phone"
-              readonly
-            />
-
-            <q-input
-              class="col col-12 col-md-6"
+              class="col col-6"
               :value="motor['location']"
               label="Location"
               readonly
             />
+            <q-input
+              class="col col-12 col-md-6"
+              :value="motor['phone']"
+              label="Device Phone"
+              readonly
+            />
           </div>
         </q-card-section>
-        <q-card-actions class="justify-around q-px-md q-mt-lg bg-grey-2">
-          <q-btn
-            flat
-            round
-            color="grey-6"
-            icon="edit"
-            @click="editRecord(motor)"
-          >
-            <template v-slot:loading> <q-spinner-radio /> </template>
-            <q-tooltip content-class="bg-blue-5">
-              Edit motor details incl. phone number, name or serial number.
-            </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="grey-6"
-            icon="view_headline"
-            @click="showHistory(motor)"
-          >
-            <template v-slot:loading> <q-spinner-radio /> </template>
-            <q-tooltip content-class="bg-blue-5">
-              Check history for the motor.
-            </q-tooltip>
-          </q-btn>
 
-          <q-btn
-            flat
-            round
-            color="grey-6"
-            icon="refresh"
-            @click="refreshStatus(motor)"
+        <div class="col flex col-12 col-sm-4 bg-grey-2 q-mt-md">
+          <q-btn-toggle
+            v-model="motorStatus"
+            push
+            rounded
+            :toggle-color="controlColor"
+            stretch
+            stack
+            spread
+            size="lg"
+            class="full-width"
+            :options="[
+              { value: 'off', slot: 'off' },
+              { value: 'on', slot: 'on' }
+            ]"
+            :readonly="motor['isChecking']"
           >
-            <template v-slot:loading> <q-spinner-radio /> </template>
-            <q-tooltip content-class="bg-blue-5">
-              Refresh status by sending another SMS to motor.
-            </q-tooltip>
+            <template v-slot:off>
+              <q-icon name="stop" />OFF
+              <q-tooltip content-class="bg-blue-5">Turn device off.</q-tooltip>
+            </template>
+
+            <template v-slot:on>
+              <q-icon name="highlight" />
+              <div class="row items-center no-wrap">
+                <div class="text-center">ON</div>
+              </div>
+              <q-tooltip content-class="bg-blue-5">Turn device on.</q-tooltip>
+            </template>
+          </q-btn-toggle>
+          <q-btn
+            class="full-width"
+            flat
+            color="primary"
+            v-if="motor['isChecking']"
+            @click="cancelRequest"
+          >
+            Cancel
+            <q-spinner-facebook color="primary" size="1em" class="q-ml-md" />
+            <q-tooltip content-class="bg-blue-5"
+              >Cancel operation. This will not cancel any requests already being
+              processed.</q-tooltip
+            >
           </q-btn>
-        </q-card-actions>
+        </div>
       </q-card>
-      <div class="col flex col-12 col-sm-4 bg-grey-2">
-        <q-btn-toggle
-          v-model="motorStatus"
-          push
-          rounded
-          :toggle-color="controlColor"
-          stretch
-          stack
-          spread
-          size="lg"
-          class="full-width "
-          :options="[
-            { value: 'off', slot: 'off' },
-            { value: 'on', slot: 'on' }
-          ]"
-          :readonly="motor['isChecking']"
-        >
-          <template v-slot:off>
-            <q-icon name="stop" />
-            OFF
-          </template>
-
-          <template v-slot:on>
-            <q-icon name="highlight" />
-            <div class="row items-center no-wrap">
-              <div class="text-center">ON</div>
-            </div>
-            <q-tooltip content-class="bg-blue-5">
-              Turn motor on.
-            </q-tooltip>
-          </template>
-        </q-btn-toggle>
-        <q-btn
-          class="full-width"
-          v-if="motor['isChecking']"
-          @click="cancelRequest"
-        >
-          Cancel
-        </q-btn>
-      </div>
     </div>
     <MotorEdit v-model="motorDialog"></MotorEdit>
   </q-card>
@@ -123,6 +127,7 @@ export default {
       btnAction: "off",
       motorDialog: false,
       undoStatus: false,
+      responseStatus: "",
       smsOptions: {
         replaceLineBreaks: false, // true to replace \n by a new line, false by default
         android: {
@@ -134,13 +139,18 @@ export default {
   },
   computed: {
     ...sync("motor", ["activeMotor"]),
+    ...sync("setting", ["settings"]),
 
-    onMsg() {
-      return `on ${this.motor["serial_num"]}`;
+    responseTimeout() {
+      if (
+        this.settings["msgResponseTimeout"] &&
+        this.motor["msgAwaitResponse"] == "true"
+      )
+        return this.settings["msgResponseTimeout"] * 1000;
+      // this is the only 'setting' that stands brave and alone
+      else return -1;
     },
-    offMsg() {
-      return `off ${this.motor["serial_num"]}`;
-    },
+
     motorStatus: {
       get: function() {
         return this.motor &&
@@ -150,13 +160,52 @@ export default {
           : "off";
       },
       set: function(val) {
+        this.activeMotor = this.motor;
         this.motor["status"] = val;
+
+        if (!this.undoStatus) {
+          this.$set(this.motor, "isChecking", true);
+
+          if (val == "on") {
+            console.log("Switching device on -", this.msgOn);
+            this.sendSMS({
+              phone: this.activeMotor["phone"],
+              msg: this.msgOn,
+              opt: this.smsOptions
+            });
+          } else {
+            console.log("Switching off device - ", this.msgOff);
+            this.sendSMS({
+              phone: this.activeMotor["phone"],
+              msg: this.msgOff,
+              opt: this.smsOptions
+            });
+          }
+        }
+      }
+    },
+
+    // responseStatus: {
+    //   get: function() {
+    //     return this.motor["response_status"];
+    //   },
+    //   set: function(val) {
+    //     console.log("response being changed", val);
+
+    //     this.$set(this.motor, "response_status", val);
+    //   }
+    // },
+    responseMsg: {
+      get: function() {
+        return this.motor["response_status_msg"];
+      },
+      set: function(val) {
+        this.$set(this.motor, "response_status_msg", val);
       }
     },
     controlColor: function() {
       let color = "grey-5";
-      console.log('this.motor["isChecking"]', this.motor["isChecking"]);
-      console.log('this.motor["isChecking"]', this.motor["status"]);
+
       if (!this.motor["isChecking"]) {
         if (this.motor["status"] && this.motor["status"] == "on")
           color = "orange-5";
@@ -164,6 +213,47 @@ export default {
       }
 
       return color;
+    },
+
+    msgOn() {
+      let msg = this.motor["msg_req_on"];
+      // replace double bracketed strings with values
+      if (msg.includes("{{")) {
+        msg = msg.replace(/{{(\w+)}}/g, (m, m1) => {
+          return this.motor[m1] || m;
+        });
+      }
+
+      return msg;
+    },
+
+    msgOff() {
+      let msg = this.motor["msg_req_off"];
+      // replace double bracketed strings with values
+      if (msg.includes("{{")) {
+        msg = msg.replace(/{{(\w+)}}/g, (m, m1) => {
+          return this.motor[m1] || m;
+        });
+      }
+
+      return msg;
+    },
+
+    msgStatus() {
+      let msg = this.motor["msg_req_status"];
+      // replace double bracketed strings with values
+      if (msg.includes("{{")) {
+        msg = msg.replace(/{{(\w+)}}/g, (m, m1) => {
+          return this.motor[m1] || m;
+        });
+      }
+
+      return msg;
+    },
+
+    msgOk() {
+      let msg = this.motor["msg_resp_ok"];
+      return msg;
     }
   },
   props: {
@@ -185,38 +275,44 @@ export default {
       });
     },
     refreshStatus(motor) {
-      this.$q.notify({
-        type: "info",
-        message: `Yet to be implemented!`
+      this.activeMotor = motor;
+      console.log("Fetching device status -", this.msgStatus);
+      this.sendSMS({
+        phone: this.activeMotor["phone"],
+        msg: this.msgStatus,
+        opt: this.smsOptions
       });
     },
     cancelRequest() {
       this.undoStatus = true;
       this.$set(this.motor, "status", !this.motor["status"]);
+      this.undoStatus = false; //backup
       this.$set(this.motor, "isChecking", false);
     }
   },
   watch: {
-    motorStatus: function(val) {
-      console.log("status", this.motor["isChecking"]);
-      if (!this.undoStatus) {
-        this.$set(this.motor, "isChecking", true);
-        if (val == "on") {
-          console.log("Switching on motor -", this.onMsg);
-          this.sendSMS({
-            phone: this.activeMotor["phone"],
-            msg: this.onMsg,
-            opt: this.smsOptions
-          });
-        } else {
-          console.log("Switching off motor - ", this.offMsg);
-          this.sendSMS({
-            phone: this.activeMotor["phone"],
-            msg: this.offMsg,
-            opt: this.smsOptions
-          });
-        }
-      } else this.undoStatus = false;
+    responseStatus(val) {
+      console.log("val changing: ", val);
+      // we have computed and watch for responseStatus.
+      // this is stupidity.
+      // Decide how responseStatus should be stored and change logic
+      if (val == "ok") {
+        this.$set(this.motor, "isChecking", false);
+        this.$q.notify({
+          type: "positive",
+          message: `Request processed for device '${this.motor["name"]}'`
+        });
+      } else if (val == "error") {
+        this.$set(this.motor, "isChecking", false);
+
+        this.undoStatus = true;
+        this.$set(this.motor, "status", !this.motor["status"]);
+        this.undoStatus = false; // backup
+        this.$q.dialog({
+          title: "Device error",
+          message: `Device '${this.motor["name"]}' did not process the request. ${this.responseMsg} Try later or seek support. `
+        });
+      }
     },
 
     doReqSMSPermission: function(val) {
@@ -225,7 +321,7 @@ export default {
           .dialog({
             title: "Provide SMS Permissions",
             message:
-              "Provide permissions to the app to send SMS. This is required to communicate with the motor."
+              "Provide permissions to the app to send SMS. This is required to communicate with the remote device."
           })
           .onOk(() => {
             this.requestSMSPermission();
@@ -233,27 +329,6 @@ export default {
           .onCancel(() => {
             console.log("Cancelled permission request");
           });
-      }
-    },
-
-    responseStatus: function(val) {
-      // this is a wrong way of binding mixin behaviour
-      if (this.responseStatus == "ok") {
-        this.$set(this.motor, "isChecking", false);
-        this.$q.notify({
-          type: "positive",
-          message: `Request processed for motor '${this.motor["name"]}'`
-        });
-      } else if (this.responseStatus == "error") {
-        this.$set(this.motor, "isChecking", false);
-
-        this.undoStatus = true;
-        this.$set(this.motor, "status", !this.motor["status"]);
-
-        this.$q.dialog({
-          title: "Motor error",
-          message: `Motor '${this.motor["name"]}' did not process the request. Try later or get support. Technical Msg: ${this.responseMsg}`
-        });
       }
     }
   }

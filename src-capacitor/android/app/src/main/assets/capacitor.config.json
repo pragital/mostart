@@ -1,8 +1,11 @@
 {
-  "appId": "com.pragital.shinwelltronics.mostart.app",
-  "appName": "Mostart Remote Motor Starter",
+  "appId": "com.pragital.mostart.app",
+  "appName": "Mostart",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "server": {
+    "url": "http://192.168.42.56:8080"
+  }
 }

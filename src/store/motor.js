@@ -7,7 +7,19 @@ const getDefaultState = () => {
   return {
     isChecking: false,
     motors: [],
-    activeMotor: {}
+    activeMotor: {},
+
+    defaultDevice: {
+      name: "",
+      phone: "",
+      location: "",
+      serial_number: "",
+      status: "off",
+      isChecking: false,
+      new: "y",
+      response_status: "",
+      response_status_msg: ""
+    }
   };
 };
 
@@ -21,16 +33,7 @@ export default {
 
   actions: {
     createUser({ commit, state }) {
-      const createRecord = {
-        username: state.activeUser["username"],
-        email: state.activeUser["email"],
-        mobile_phone: state.activeUser["mobile_phone"],
-        start_date: state.activeUser["start_date"],
-        end_date: state.activeUser["end_date"],
-        account_status: state.activeUser["account_status"] || "Pending",
-        role_cd: state.activeUser["role_cd"] || "User",
-        account_id: state.activeUser["account_id"]
-      };
+      // this is the future!
     }
   },
 
@@ -40,7 +43,7 @@ export default {
       Object.assign(state, getDefaultState());
     },
     addMotor(state, motor) {
-      state.motors.unshift(motor);
+      state.motors.push(motor);
     },
     removeMotor(state, motor) {
       state.motors.splice(state.motors.indexOf(motor), 1);

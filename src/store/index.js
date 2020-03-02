@@ -6,6 +6,7 @@ import Vuex from "vuex";
 
 import user from "./user";
 import motor from "./motor";
+import setting from "./setting";
 
 // import example from './module-example'
 
@@ -47,7 +48,8 @@ export default function(/* { ssrContext } */) {
     modules: {
       // example
       user,
-      motor
+      motor,
+      setting
     },
     plugins: [pathify.plugin, vuexLocal.plugin]
 

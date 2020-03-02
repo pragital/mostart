@@ -95,9 +95,10 @@ module.exports = function(ctx) {
       workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: "Mostart Remote Motor Starter",
-        short_name: "Mostart Remote Motor Starter",
-        description: "Remote electric motor starter by Shinwell-tronics.",
+        name: "Mostart",
+        short_name: "Mostart Remote Device Starter",
+        description:
+          "Control remote devices like electric motors, pumps etc. using a friendly interface and SMS. This app should be supported by a suitable controller on device.",
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
@@ -135,7 +136,7 @@ module.exports = function(ctx) {
     // Full list of options: https://quasar.dev/quasar-cli/developing-cordova-apps/configuring-cordova
     cordova: {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
-      id: "com.pragital.shinwelltronics.mostart.app"
+      id: "com.pragital.mostart.app"
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor

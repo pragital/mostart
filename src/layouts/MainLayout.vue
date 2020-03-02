@@ -12,22 +12,21 @@
         />
 
         <q-toolbar-title>Mostart</q-toolbar-title>
+        <span class="self-right">
+          <q-btn flat fab to="/settings">
+            <q-icon name="settings" />
+          </q-btn>
+          <q-btn flat fab to="/help">
+            <q-icon name="help" />
+          </q-btn>
+        </span>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-1"
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered content-class="bg-grey-1">
       <q-list>
         <q-item-label header class="text-grey-8">Options</q-item-label>
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink v-for="link in essentialLinks" :key="link.title" v-bind="link" />
       </q-list>
       <q-list>
         <!-- <EssentialLink v-bind="setupLink" /> -->
@@ -74,7 +73,7 @@ export default {
           title: "Settings",
           caption: "Modify settings",
           icon: "settings",
-          link: "/settings"
+          link: "settings"
         }
       ],
       // setupLink: {
@@ -87,7 +86,7 @@ export default {
         title: "Exit",
         caption: "",
         icon: "close",
-        link: "/exit"
+        link: "exit"
       },
       helpLink: {
         title: "Help",

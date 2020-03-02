@@ -1,6 +1,6 @@
 {
   "appId": "com.pragital.mostart.app",
-  "appName": "Mostart Remote Motor Starter",
+  "appName": "Mostart",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

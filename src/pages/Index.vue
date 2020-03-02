@@ -3,32 +3,21 @@
     <div class="q-pa-lg q-gutter-md">
       <div class="row full-height">
         <div class="col-12">
-          <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">
-            Welcome, {{ userName }}
-          </div>
-          <div class="title text-weight-bold text-h5 mt-3 mb-5">
-            Device Remote Control
-          </div>
+          <div
+            class="title text-weight-bold text-subtitle text-grey mt-3 mb-5"
+          >Welcome, {{ userName }}</div>
+          <div class="title text-weight-bold text-h5 mt-3 mb-5">Device Remote Control</div>
         </div>
 
         <div class="col-12" v-if="!motors || motors.length == 0">
-          <q-btn
-            color="primary"
-            size="lg"
-            label="Add Device"
-            @click="createRecord"
-            icon="add"
-          >
+          <q-btn color="primary" size="lg" label="Add Device" @click="createRecord" icon="add">
             <template v-slot:loading>
               <q-spinner-radio />
             </template>
           </q-btn>
         </div>
 
-        <div
-          class="col col-12 text-right q-mt-md q-pr-md"
-          v-if="motors && motors.length > 0"
-        >
+        <div class="col col-12 text-right q-mt-md q-pr-md" v-if="motors && motors.length > 0">
           <q-btn
             color="primary"
             size="md"
@@ -89,6 +78,7 @@ export default {
       this.$set(this.activeMotor, "new", "y");
       this.$set(this.activeMotor, "msg_req_on", this.settings["msg_req_on"]);
       this.$set(this.activeMotor, "msg_req_off", this.settings["msg_req_off"]);
+
       this.$set(
         this.activeMotor,
         "msg_req_status",

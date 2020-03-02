@@ -8,7 +8,23 @@
     },
     "build_always": false,
     "__internal": {
-      "dev": {},
+      "dev": {
+        "capacitor": {
+          "iconHash": "67551f94186681a0a53acbd22af2ef1e",
+          "splashscreenHash": false,
+          "splashscreenType": "generate",
+          "backgroundColor": "#fafafa"
+        },
+        "spa": {
+          "iconHash": "67551f94186681a0a53acbd22af2ef1e"
+        },
+        "cordova": {
+          "iconHash": "67551f94186681a0a53acbd22af2ef1e",
+          "splashscreenHash": false,
+          "splashscreenType": "generate",
+          "backgroundColor": "#fafafa"
+        }
+      },
       "build": {}
     }
   }

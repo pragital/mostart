@@ -85,10 +85,12 @@ export default {
               }
               console.log("Stopping response listener..");
               SMSReceive.stopWatch(successResponseReceived, errorResponse);
+
+              if (smsTimeout) clearTimeout(smsTimeout);
             }
           });
 
-          setTimeout(() => {
+          var smsTimeout = setTimeout(() => {
             console.log("Timing out..!", this.smsStatus);
             if (
               this.smsStatus == "response-start" ||

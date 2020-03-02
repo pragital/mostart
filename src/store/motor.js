@@ -18,7 +18,8 @@ const getDefaultState = () => {
       isChecking: false,
       new: "y",
       response_status: "",
-      response_status_msg: ""
+      response_status_msg: "",
+      msgAwaitResponse: "true"
     }
   };
 };

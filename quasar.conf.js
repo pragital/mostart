@@ -96,7 +96,7 @@ module.exports = function(ctx) {
       workboxOptions: {}, // only for GenerateSW
       manifest: {
         name: "Mostart",
-        short_name: "Mostart Remote Device Starter",
+        short_name: "Mostart SMS Remote Control",
         description:
           "Control remote devices like electric motors, pumps etc. using a friendly interface and SMS. This app should be supported by a suitable controller on device.",
         display: "standalone",

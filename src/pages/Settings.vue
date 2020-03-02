@@ -3,9 +3,7 @@
     <div class="q-pa-lg q-gutter-md">
       <div class="row full-height">
         <div class="col-12">
-          <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">
-            Change app settings.
-          </div>
+          <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">Change app settings.</div>
           <div class="title text-weight-bold text-h5 mt-3 mb-5">Settings</div>
         </div>
 
@@ -28,9 +26,7 @@
           <q-form ref="editSettingsForm" class="q-ma-md">
             <div class="row q-gutter-md">
               <q-card flat bordered class="col col-12">
-                <q-toolbar class="text-subtitle2 bg-grey-3">
-                  General
-                </q-toolbar>
+                <q-toolbar class="text-subtitle2 bg-grey-3">General</q-toolbar>
                 <q-card-section class="q-px-md">
                   <q-input
                     class="col col-12"
@@ -41,9 +37,7 @@
                 </q-card-section>
               </q-card>
               <q-card flat bordered class="col col-12">
-                <q-toolbar class="text-subtitle2 bg-grey-3">
-                  Messages
-                </q-toolbar>
+                <q-toolbar class="text-subtitle2 bg-grey-3">Messages</q-toolbar>
                 <q-card-section class="q-px-md">
                   <div class="row justify-around q-gutter-md">
                     <q-checkbox
@@ -91,9 +85,7 @@
         </div>
 
         <div class="col-12 overline text-weight-bold block text-grey-5 mt-3">
-          <p class="infoText">
-            &nbsp;Change app settings here. Save the settings to apply changes.
-          </p>
+          <p class="infoText">&nbsp;Change app settings here. Save the settings to apply changes.</p>
         </div>
       </div>
     </div>
@@ -136,6 +128,10 @@ export default {
   components: {},
   methods: {
     saveRecord() {
+      console.log(
+        "this.$refs.editSettingsForm.validate()",
+        this.$refs.editSettingsForm.validate()
+      );
       if (this.$refs.editSettingsForm.validate()) {
         if (!this.settingInstance["msgReqOn"])
           this.settings["msgReqOn"] = "motoron {{serial_number}}";
@@ -145,8 +141,17 @@ export default {
           this.settings["msg_resp_ok"] = "ok";
 
         this.settings = { ...this.settingInstance };
+
+        this.$q.notify({
+          type: "success",
+          message: `Settings saved!`
+        });
         this.closeDialog();
       }
+      this.$q.notify({
+        type: "info",
+        message: `I am here!`
+      });
     },
 
     closeDialog() {

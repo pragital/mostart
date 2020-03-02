@@ -3,14 +3,20 @@
     <div class="row">
       <q-card class="col col-12 col-sm-8" v-if="motor">
         <q-card-actions class="dense justify-end q-px-md q-mb-md bg-grey-2">
-          <q-btn flat color="grey-6" icon="edit" @click="editRecord(motor)">
+          <q-btn
+            flat
+            color="grey-6"
+            icon="edit"
+            @click="editRecord(motor)"
+            :disabled="motor['isChecking']"
+          >
             <template v-slot:loading>
               <q-spinner-radio />
             </template>
-            <q-tooltip content-class="bg-blue-5"
-              >Edit device details incl. phone number, name or serial
-              number.</q-tooltip
-            >
+            <q-tooltip content-class="bg-blue-5">
+              Edit device details incl. phone number, name or serial
+              number.
+            </q-tooltip>
           </q-btn>
           <!-- <q-btn
             flat
@@ -24,36 +30,25 @@
             <q-tooltip content-class="bg-blue-5"
               >Check request history for the device.</q-tooltip
             >
-          </q-btn> -->
+          </q-btn>-->
 
           <q-btn
             flat
             color="grey-6"
             icon="refresh"
             @click="refreshStatus(motor)"
+            :disabled="motor['isChecking']"
           >
             <template v-slot:loading>
               <q-spinner-radio />
             </template>
-            <q-tooltip content-class="bg-blue-5"
-              >Refresh status by sending another SMS to device.</q-tooltip
-            >
+            <q-tooltip content-class="bg-blue-5">Refresh status by sending another SMS to device.</q-tooltip>
           </q-btn>
         </q-card-actions>
         <q-card-section class="q-px-md">
           <div class="row justify-around">
-            <q-input
-              class="col col-6"
-              :value="motor['name']"
-              label="Name"
-              readonly
-            />
-            <q-input
-              class="col col-6"
-              :value="motor['location']"
-              label="Location"
-              readonly
-            />
+            <q-input class="col col-6" :value="motor['name']" label="Name" readonly />
+            <q-input class="col col-6" :value="motor['location']" label="Location" readonly />
             <q-input
               class="col col-12 col-md-6"
               :value="motor['phone']"
@@ -102,10 +97,10 @@
           >
             Cancel
             <q-spinner-facebook color="primary" size="1em" class="q-ml-md" />
-            <q-tooltip content-class="bg-blue-5"
-              >Cancel operation. This will not cancel any requests already being
-              processed.</q-tooltip
-            >
+            <q-tooltip content-class="bg-blue-5">
+              Cancel operation. This will not cancel any requests already being
+              processed.
+            </q-tooltip>
           </q-btn>
         </div>
       </q-card>

@@ -8,14 +8,13 @@
             color="grey-6"
             icon="edit"
             @click="editRecord(motor)"
-            :disabled="motor['isChecking']"
+            :disabled="!!motor['in_progress_op']"
           >
             <template v-slot:loading>
               <q-spinner-radio />
             </template>
             <q-tooltip content-class="bg-blue-5">
-              Edit device details incl. phone number, name or serial
-              number.
+              Edit device details incl. phone number, name or serial number.
             </q-tooltip>
           </q-btn>
           <!-- <q-btn
@@ -37,18 +36,30 @@
             color="grey-6"
             icon="refresh"
             @click="refreshStatus(motor)"
-            :disabled="motor['isChecking']"
+            :disabled="smsReadOnly || !!motor['in_progress_op']"
           >
             <template v-slot:loading>
               <q-spinner-radio />
             </template>
-            <q-tooltip content-class="bg-blue-5">Refresh status by sending another SMS to device.</q-tooltip>
+            <q-tooltip content-class="bg-blue-5"
+              >Refresh status by sending another SMS to device.</q-tooltip
+            >
           </q-btn>
         </q-card-actions>
         <q-card-section class="q-px-md">
           <div class="row justify-around">
-            <q-input class="col col-6" :value="motor['name']" label="Name" readonly />
-            <q-input class="col col-6" :value="motor['location']" label="Location" readonly />
+            <q-input
+              class="col col-6"
+              :value="motor['name']"
+              label="Name"
+              readonly
+            />
+            <q-input
+              class="col col-6"
+              :value="motor['location']"
+              label="Location"
+              readonly
+            />
             <q-input
               class="col col-12 col-md-6"
               :value="motor['phone']"
@@ -73,7 +84,7 @@
               { value: 'off', slot: 'off' },
               { value: 'on', slot: 'on' }
             ]"
-            :readonly="motor['isChecking']"
+            :readonly="smsReadOnly || motor['in_progress_op'] != ''"
           >
             <template v-slot:off>
               <q-icon name="stop" />OFF
@@ -92,7 +103,7 @@
             class="full-width"
             flat
             color="primary"
-            v-if="motor['isChecking']"
+            v-if="motor['in_progress_op'] != ''"
             @click="cancelRequest"
           >
             Cancel
@@ -123,6 +134,7 @@ export default {
       motorDialog: false,
       undoStatus: false,
       responseStatus: "",
+      responseMsg: "",
       smsOptions: {
         replaceLineBreaks: false, // true to replace \n by a new line, false by default
         android: {
@@ -133,17 +145,32 @@ export default {
     };
   },
   computed: {
-    ...sync("motor", ["activeMotor"]),
+    ...sync("motor", ["activeMotor", "smsReadOnly"]),
     ...sync("setting", ["settings"]),
 
     responseTimeout() {
+      // also used by SMSUtil
+
       if (
-        this.settings["msgResponseTimeout"] &&
-        this.motor["msgAwaitResponse"] == "true"
+        this.settings["msg_response_timeout"] &&
+        this.motor["msg_await_response"] == "true"
       )
-        return this.settings["msgResponseTimeout"] * 1000;
+        return this.settings["msg_response_timeout"] * 1000;
       // this is the only 'setting' that stands brave and alone
       else return -1;
+    },
+
+    inProgressOp: {
+      //updated from SMSUtil
+      get() {
+        return this.motor["in_progress_op"];
+      },
+      set(val) {
+        // play a role only if timeout exists.
+        // else the operations are too fast for any good
+        if (this.responseTimeout > 0)
+          this.$set(this.motor, "in_progress_op", val);
+      }
     },
 
     motorStatus: {
@@ -158,8 +185,10 @@ export default {
         this.activeMotor = this.motor;
         this.motor["status"] = val;
 
+        // do not do all these operations if we are just undoing stuff
         if (!this.undoStatus) {
-          this.$set(this.motor, "isChecking", true);
+          this.inProgressOp = val;
+          this.smsReadOnly = true;
 
           if (val == "on") {
             console.log("Switching device on -", this.msgOn);
@@ -190,18 +219,18 @@ export default {
     //     this.$set(this.motor, "response_status", val);
     //   }
     // },
-    responseMsg: {
-      get: function() {
-        return this.motor["response_status_msg"];
-      },
-      set: function(val) {
-        this.$set(this.motor, "response_status_msg", val);
-      }
-    },
+    // responseMsg: {
+    //   get: function() {
+    //     return this.motor["response_status_msg"];
+    //   },
+    //   set: function(val) {
+    //     this.$set(this.motor, "response_status_msg", val);
+    //   }
+    // },
     controlColor: function() {
       let color = "grey-5";
 
-      if (!this.motor["isChecking"]) {
+      if (!this.motor["in_progress_op"] && !this.smsReadOnly) {
         if (this.motor["status"] && this.motor["status"] == "on")
           color = "orange-5";
         else color = "green-5";
@@ -271,7 +300,12 @@ export default {
     },
     refreshStatus(motor) {
       this.activeMotor = motor;
+
+      this.inProgressOp = "status";
+      this.smsReadOnly = true; //temp solution. Problem with SMSReceiver for multiple transactions.
+
       console.log("Fetching device status -", this.msgStatus);
+
       this.sendSMS({
         phone: this.activeMotor["phone"],
         msg: this.msgStatus,
@@ -279,34 +313,66 @@ export default {
       });
     },
     cancelRequest() {
-      this.undoStatus = true;
-      this.$set(this.motor, "status", !this.motor["status"]);
-      this.undoStatus = false; //backup
-      this.$set(this.motor, "isChecking", false);
+      if (this.smsTimeoutFunc) {
+        clearTimeout(this.smsTimeoutFunc);
+        this.smsTimeoutFunc = null;
+      }
+
+      console.log("current status", this.motor["status"]);
+      console.log("op", this.inProgressOp);
+      if (this.inProgressOp != "status") {
+        this.undoStatus = true; // undo status change only for on/off requests
+        console.log("setting status back to", !this.motor["status"]);
+        this.$set(
+          this.motor,
+          "status",
+          this.motor["status"] == "on" ? "off" : "on"
+        );
+        this.undoStatus = false; //backup
+      }
+
+      this.inProgressOp = "";
+      this.smsReadOnly = false;
     }
   },
   watch: {
-    responseStatus(val) {
-      console.log("val changing: ", val);
+    responseStatus: function(val) {
       // we have computed and watch for responseStatus.
       // this is stupidity.
       // Decide how responseStatus should be stored and change logic
-      if (val == "ok") {
-        this.$set(this.motor, "isChecking", false);
+
+      if (val.includes("ok")) {
+        if (this.inProgressOp == "status") {
+          // applies for status checks since ..
+          //  .. app status needs to sync with device status
+          //
+          // for on/off 'ok': there is no status expected
+          // for status 'ok': set status to status sent by motor.
+          // Note the prefix space in on
+
+          this.undoStatus = true;
+          let status = this.responseMsg.includes(" on") ? "on" : "off";
+          this.$set(this.motor, "status", status);
+          this.undoStatus = false; // backup
+        }
+
         this.$q.notify({
           type: "positive",
           message: `Request processed for device '${this.motor["name"]}'`
         });
+        this.inProgressOp = "";
+        this.smsReadOnly = false;
       } else if (val == "error") {
-        this.$set(this.motor, "isChecking", false);
-
         this.undoStatus = true;
         this.$set(this.motor, "status", !this.motor["status"]);
         this.undoStatus = false; // backup
+
         this.$q.dialog({
           title: "Device error",
           message: `Device '${this.motor["name"]}' did not process the request. ${this.responseMsg} Try later or seek support. `
         });
+        this.inProgressOp = "";
+        this.smsReadOnly = false;
       }
     },
 

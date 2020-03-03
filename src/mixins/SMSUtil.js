@@ -6,23 +6,16 @@ export default {
       doReqSMSPermission: false,
       smsError: "",
       smsStatus: "",
-      smsResponse: ""
+      smsResponse: "",
+      smsTimeoutFunc: null
     };
   },
-  computed: {
-    awaitResponseTimeout() {
-      return this.responseTimeout;
-    },
-    awaitResponse() {
-      return this.awaitResponseTimeout > 0 ? true : false;
-    }
-  },
+  computed: {},
   methods: {
-    async sendSMS({ phone, msg, opt }) {
+    sendSMS({ phone, msg, opt }) {
+      this.updateResponse("", "");
       this.smsStatus = "start";
       this.smsError = "";
-      this.responseMsg = "";
-      this.responseStatus = "";
 
       let success = () => {
         this.smsStatus = "sent-success";
@@ -32,14 +25,20 @@ export default {
         this.smsError = e;
       };
 
-      if (typeof sms === "undefined") {
-        this.responseMsg = "SMS facility not available on this device.";
-        this.responseStatus = "error";
-      } else {
+      if (typeof sms === "undefined")
+        this.updateResponse(
+          "error",
+          "SMS facility not available on this device."
+        );
+      else {
         this.checkSMSPermission();
         sms.send(phone, msg, opt, success, error);
 
-        if (this.awaitResponse) {
+        console.log("SMS sent!");
+
+        if (this.responseTimeout > 0) {
+          // wait for response if timeout > 0
+
           const successResponseSent = () => {
             this.smsStatus = "response-start";
           };
@@ -67,50 +66,49 @@ export default {
 
             if (IncomingSMS.address && IncomingSMS.address.includes(phone)) {
               console.log("Looking for success or error - ", msgOk);
-              console.log(
-                IncomingSMS.body &&
-                  IncomingSMS.body.toLowerCase().includes(msgOk)
-              );
+
               if (
                 IncomingSMS.body &&
                 IncomingSMS.body.toLowerCase().includes(msgOk)
-              ) {
-                this.updateResponse("ok", "done");
-                // this.responseMsg = "done";
-                // this.responseStatus = "ok";
-              } else {
-                // this.responseMsg = IncomingSMS.body;
-                // this.responseStatus = "error";
-                this.updateResponse("error", IncomingSMS.body);
-              }
+              )
+                this.updateResponse("ok", IncomingSMS.body);
+              else this.updateResponse("error", IncomingSMS.body);
+
               console.log("Stopping response listener..");
               SMSReceive.stopWatch(successResponseReceived, errorResponse);
 
-              if (smsTimeout) clearTimeout(smsTimeout);
+              if (this.smsTimeoutFunc) {
+                clearTimeout(this.smsTimeoutFunc);
+                this.smsTimeoutFunc = null;
+              }
             }
           });
 
-          var smsTimeout = setTimeout(() => {
+          this.smsTimeoutFunc = setTimeout(() => {
             console.log("Timing out..!", this.smsStatus);
             if (
               this.smsStatus == "response-start" ||
               this.smsStatus == "sent-success"
             ) {
-              this.responseMsg = "Response from device not received in time.";
-              this.responseStatus = "error";
+              this.updateResponse(
+                "error",
+                "Response from device not received in time."
+              );
               SMSReceive.stopWatch(timeoutResponse, errorResponse);
             }
-          }, this.awaitResponseTimeout);
+          }, this.responseTimeout);
         } else {
           // not waiting for response
-          this.responseMsg = "done";
-          this.responseStatus = "ok";
+          // this will not trigger updates if we don't wait for next tick
+          setTimeout(() => {
+            this.updateResponse("ok", "Done.");
+          }, 500);
         }
       }
     },
 
     updateResponse(status, statusMsg) {
-      console.log("updating them statuses", status, statusMsg);
+      console.log("updating response", status);
       this.responseMsg = statusMsg;
       this.responseStatus = status;
     },

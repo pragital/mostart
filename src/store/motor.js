@@ -5,21 +5,20 @@ import router from "../router";
 
 const getDefaultState = () => {
   return {
-    isChecking: false,
     motors: [],
     activeMotor: {},
-
+    smsReadOnly: false,
     defaultDevice: {
       name: "",
       phone: "",
       location: "",
       serial_number: "",
       status: "off",
-      isChecking: false,
+      in_progress_op: "",
       new: "y",
       response_status: "",
       response_status_msg: "",
-      msgAwaitResponse: "true"
+      msg_await_response: "true"
     }
   };
 };

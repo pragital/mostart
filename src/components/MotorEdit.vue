@@ -205,12 +205,16 @@ export default {
     },
     awaitResponse: {
       get() {
-        return this.activeMotor["msgAwaitResponse"] == "true";
+        return this.activeMotor["msg_await_response"] == "true";
       },
       set: function(val) {
         // this is string since we want to store settings values to pref at some point
         // and pref will only support strings
-        this.$set(this.activeMotor, "msgAwaitResponse", val ? "true" : "false");
+        this.$set(
+          this.activeMotor,
+          "msg_await_response",
+          val ? "true" : "false"
+        );
       }
     }
   },

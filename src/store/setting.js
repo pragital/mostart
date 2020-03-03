@@ -7,8 +7,8 @@ const getDefaultState = () => {
   return {
     settings: {
       name: "Awesome User",
-      msgAwaitResponse: "true",
-      msgResponseTimeout: "60",
+      msg_await_response: "true", // decorative, improves UX perhaps? We collect but don't use
+      msg_response_timeout: "60",
       msg_req_on: "motoron {{serial_number}}",
       msg_req_off: "motoroff {{serial_number}}",
       msg_req_status: "s {{serial_number}}",

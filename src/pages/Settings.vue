@@ -3,7 +3,9 @@
     <div class="q-pa-lg q-gutter-md">
       <div class="row full-height">
         <div class="col-12">
-          <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">Change app settings.</div>
+          <div class="title text-weight-bold text-subtitle text-grey mt-3 mb-5">
+            Change app settings.
+          </div>
           <div class="title text-weight-bold text-h5 mt-3 mb-5">Settings</div>
         </div>
 
@@ -48,7 +50,7 @@
                     />
                     <q-input
                       class="col col-5"
-                      v-model="settingInstance['msgResponseTimeout']"
+                      v-model="settingInstance['msg_response_timeout']"
                       label="Timeout (seconds)"
                       :disable="!awaitResponse"
                     />
@@ -85,7 +87,9 @@
         </div>
 
         <div class="col-12 overline text-weight-bold block text-grey-5 mt-3">
-          <p class="infoText">&nbsp;Change app settings here. Save the settings to apply changes.</p>
+          <p class="infoText">
+            &nbsp;Change app settings here. Save the settings to apply changes.
+          </p>
         </div>
       </div>
     </div>
@@ -109,20 +113,17 @@ export default {
     ...sync("setting", ["settings"]),
     awaitResponse: {
       get() {
-        return this.settingInstance["msgAwaitResponse"] == "true";
+        return this.settingInstance["msg_await_response"] == "true";
       },
       set: function(val) {
         // this is string since we want to store settings values to pref at some point
         // and pref will only support strings
         this.$set(
           this.settingInstance,
-          "msgAwaitResponse",
+          "msg_await_response",
           val ? "true" : "false"
         );
       }
-    },
-    responseTimeout() {
-      return this.settings["msgResponseTimeout"];
     }
   },
   components: {},
